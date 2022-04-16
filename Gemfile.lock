@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/eregon/path.git
-  revision: f70baf20b89fa5e7d32e24a3f3a52d08196dfe94
+  revision: 38a81454a7a054f4d180ea2a7654fd07f2734050
   specs:
     path (2.0.1)
 
@@ -37,4 +37,4 @@ DEPENDENCIES
   simple-group!
 
 BUNDLED WITH
-   2.3.6
+   2.3.11
