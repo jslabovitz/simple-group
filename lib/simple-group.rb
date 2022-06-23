@@ -97,8 +97,9 @@ module Simple
     end
 
     def save_item(item)
+      raise Error, "Item does not have ID" unless item.id
       item.json_file = json_file_for_id(item.id)
-      ;;warn "* saving item to #{item.json_file}"
+      # ;;warn "* saving item to #{item.json_file}"
       json = JSON.pretty_generate(item)
       item.json_file.dirname.mkpath unless item.json_file.dirname.exist?
       item.json_file.write(json)
@@ -108,7 +109,7 @@ module Simple
     def save_hash(hash)
       raise Error, "Hash does not have ID" unless hash[:id]
       json_file = json_file_for_id(hash[:id])
-      ;;warn "* saving item to #{json_file}"
+      # ;;warn "* saving item to #{json_file}"
       json = JSON.pretty_generate(hash)
       json_file.dirname.mkpath unless json_file.dirname.exist?
       json_file.write(json)
