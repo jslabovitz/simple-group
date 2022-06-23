@@ -13,6 +13,10 @@ module Simple
         @json_file.dirname
       end
 
+      def files
+        dir.glob('*') - [json_file]
+      end
+
       def to_h
         {
           id: @id,
