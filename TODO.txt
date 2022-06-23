@@ -1,0 +1,18 @@
+- rename to FileDB or SlowDB
+
+- make work *only* with files
+  - no in-memory database
+  - no caching (or optional)
+  - #[] reads JSON file, #[]= writes, #delete deletes
+  - #keys reads directories/IDs
+  - #values parses JSON files
+  - #update(item) rewrites item
+
+- make include'able, rather than inheritable
+  - include Simple::Group, include Simple::Group::Item
+
+- make simpler to-json/from-json converters
+  - hash with keys of attributes, values as hash of procs:
+    - initialize
+    - reader
+    - writer (defaults to #to_s unless basic types)
