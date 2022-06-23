@@ -3,7 +3,6 @@ require 'path'
 require 'set_params'
 
 require 'simple-group/item'
-require 'simple-group/version'
 
 module Simple
 

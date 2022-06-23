@@ -1,9 +1,0 @@
-module Simple
-
-  class Group
-
-    VERSION = '0.1'
-
-  end
-
-end

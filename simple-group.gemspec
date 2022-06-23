@@ -1,8 +1,6 @@
-require_relative 'lib/simple-group/version'
-
 Gem::Specification.new do |s|
   s.name          = 'simple-group'
-  s.version       = Simple::Group::VERSION
+  s.version       = '0.2'
   s.summary       = 'A database built upon JSON files'
   s.author        = 'John Labovitz'
   s.email         = 'johnl@johnlabovitz.com'
