@@ -19,7 +19,7 @@ module Simple
 
       def to_h
         {
-          id: @id,
+          id: id,
         }
       end
 
@@ -36,7 +36,7 @@ module Simple
       end
 
       def <=>(other)
-        @id <=> other.id
+        id <=> other.id
       end
 
     end
