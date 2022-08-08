@@ -11,6 +11,7 @@ module Simple
     class Error < Exception; end
 
     attr_accessor :root
+    attr_accessor :refs_dir
 
     InfoFileName = 'info.json'
 
@@ -22,8 +23,13 @@ module Simple
       []
     end
 
-    def initialize(root:)
+    def self.convert_id(id)
+      id
+    end
+
+    def initialize(root:, refs_dir: nil)
       @root = Path.new(root).expand_path
+      @refs_dir = Path.new(refs_dir).expand_path
       @items = {}
       if @root.exist?
         @root.glob("*/#{InfoFileName}").each do |info_file|
@@ -39,45 +45,64 @@ module Simple
       @items.values
     end
 
+    def convert_id(id)
+      self.class.convert_id(id)
+    end
+
     def [](id)
-      @items[id]
+      @items[convert_id(id)]
+    end
+
+    def []=(id, value)
+      @items[convert_id(id)] = value
     end
 
     def find(*selectors)
-      ;;puts "searching #{self.class}"
       selectors = [selectors].compact.flatten
+      warn "searching #{self.class} for: #{selectors.empty? ? 'ALL' : selectors.join(', ')}"
       if selectors.empty?
-        selected = items
+        items
       else
-        selected = []
-        selectors.each do |selector|
-          case selector.to_s
-          when /^:(.*)$/
-            begin
-              selected += send("#{$1}?").call
-            rescue NameError
-              raise Error, "Unknown selector #{selector.inspect} in #{self.class}"
-            end
-          when /^-?\d+$/
-            n = selector.to_i
-            item = self[n.abs] or raise Error, "Can't find item #{selector.inspect} in #{self.class}"
-            if n > 0
-              selected += [item]
-            else
-              selected -= [item]
-            end
-          else
-            selected += search(selector)
-          end
-        end
-        selected.uniq!
+        @selected = Set.new
+        selectors.each { |s| select(s) }
+        @selected.map { |id| self[id] }
       end
-      selected.sort
     end
 
-    def search(query)
+    def select(selector)
+      case selector.to_s
+      when /^:(.*)$/
+        select_method($1)
+      when /^%(.*)$/
+        select_search($1)
+      when /^@(.*)$/
+        select_ref($1)
+      when /^-(.*)$/
+        select_remove($1)
+      when /^\+?(.*)$/
+        select_add($1)
+      end
+    end
+
+    def select_method(method)
+      begin
+        @selected += send("#{$1}?").call.map(&:id)
+      rescue NameError
+        raise Error, "Unknown selector #{selector.inspect} in #{self.class}"
+      end
+    end
+
+    def select_add(id)
+      @selected << convert_id(id)
+    end
+
+    def select_remove(id)
+      @selected.delete(convert_id(id))
+    end
+
+    def select_search(query)
       words = [query].flatten.join(' ').tokenize.sort.uniq - ['-']
-      words.map do |word|
+      @selected += words.map do |word|
         regexp = Regexp.new(Regexp.quote(word), true)
         @items.values.select do |item|
           self.class.search_fields.find do |field|
@@ -89,7 +114,21 @@ module Simple
             end
           end
         end
-      end.flatten.compact.uniq
+      end.flatten.compact.map(&:id)
+    end
+
+    def select_ref(ref)
+      unless @refs_dir
+        raise Error, "Reference specified but refs_dir is not defined"
+      end
+      path = @refs_dir / ref
+      unless path.exist?
+        raise Error, "Reference #{ref.inspect} does not exist in #{@refs_dir}"
+      end
+      path.readlines.map do |line|
+        selector = line.sub(/#.*/, '').strip.split(/\s+/, 2).first
+        select(selector)
+      end
     end
 
     def json_file_for_id(id)
@@ -103,7 +142,7 @@ module Simple
       json = JSON.pretty_generate(item)
       item.json_file.dirname.mkpath unless item.json_file.dirname.exist?
       item.json_file.write(json)
-      @items[item.id] ||= item
+      self[item.id] ||= item
     end
 
     def save_hash(hash)
@@ -116,16 +155,16 @@ module Simple
     end
 
     def has_item?(id)
-      @items.has_key?(id)
+      @items.has_key?(convert_id(id))
     end
 
     def destroy!
-      @items.values.each { |item| @items.delete(item.id) }
+      @items.values.each { |item| delete(item.id) }
       @root.rmtree if @root.exist?
     end
 
     def destroy_item!(item)
-      @items.delete(item.id)
+      delete(item.id)
       dir = json_file_for_id(item.id).dirname
       dir.rmtree if dir.exist?
     end
