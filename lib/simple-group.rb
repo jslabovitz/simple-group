@@ -159,12 +159,12 @@ module Simple
     end
 
     def destroy!
-      @items.values.each { |item| delete(item.id) }
+      @items = {}
       @root.rmtree if @root.exist?
     end
 
     def destroy_item!(item)
-      delete(item.id)
+      @items.delete(item.id)
       dir = json_file_for_id(item.id).dirname
       dir.rmtree if dir.exist?
     end
