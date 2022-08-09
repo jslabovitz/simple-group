@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'simple-group'
-  s.version       = '0.3'
+  s.version       = '0.3.1'
   s.summary       = 'A database built upon JSON files'
   s.author        = 'John Labovitz'
   s.email         = 'johnl@johnlabovitz.com'
