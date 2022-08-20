@@ -34,10 +34,9 @@ module Simple
       if @root.exist?
         @root.glob("*/#{InfoFileName}").each do |info_file|
           raise Error, "Info file does not exist: #{info_file}" unless info_file.exist?
-          item = self.class.item_class.new(json_file: info_file, **JSON.load(info_file.read))
-          @items[item.id] = item
+          make_item(**JSON.load(info_file.read))
         end
-        ;;warn "* loaded #{@items.length} items from #{@root}"
+        # ;;warn "* loaded #{@items.length} items from #{@root}"
       end
     end
 
@@ -55,6 +54,19 @@ module Simple
 
     def []=(id, value)
       @items[convert_id(id)] = value
+    end
+
+    def <<(item)
+      item.group = self
+      self[item.id] = item
+    end
+
+    def make_item(**params)
+      item = self.class.item_class.new(**params)
+      item.group = self
+      item.json_file = json_file_for_id(item.id)
+      @items[item.id] = item
+      item
     end
 
     def find(*selectors)

@@ -6,6 +6,7 @@ module Simple
 
       attr_accessor :json_file
       attr_accessor :id
+      attr_accessor :group
 
       include SetParams
 
@@ -37,6 +38,10 @@ module Simple
 
       def <=>(other)
         id <=> other.id
+      end
+
+      def save
+        @group.save_item(self)
       end
 
     end
