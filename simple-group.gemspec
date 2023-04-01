@@ -14,12 +14,12 @@ Gem::Specification.new do |s|
   s.executables   = `git ls-files -- bin/*`.split("\n").map { |f| File.basename(f) }
   s.require_path  = 'lib'
 
-  s.add_dependency 'json', '~> 2.2'
+  s.add_dependency 'json', '~> 2.6'
   s.add_dependency 'path', '~> 2.0'
-  s.add_dependency 'set_params', '~> 0.1'
+  s.add_dependency 'set_params', '~> 0.2'
 
-  s.add_development_dependency 'bundler', '~> 2.3'
-  s.add_development_dependency 'minitest', '~> 5.16'
+  s.add_development_dependency 'bundler', '~> 2.4'
+  s.add_development_dependency 'minitest', '~> 5.18'
   s.add_development_dependency 'minitest-power_assert', '~> 0.3'
   s.add_development_dependency 'rake', '~> 13.0'
 
