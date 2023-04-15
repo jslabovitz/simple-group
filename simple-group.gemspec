@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.require_path  = 'lib'
 
   s.add_dependency 'json', '~> 2.6'
-  s.add_dependency 'path', '~> 2.0'
+  s.add_dependency 'path', '~> 2.1'
   s.add_dependency 'set_params', '~> 0.2'
 
   s.add_development_dependency 'bundler', '~> 2.4'
