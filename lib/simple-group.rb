@@ -11,7 +11,6 @@ module Simple
     class Error < Exception; end
 
     attr_accessor :root
-    attr_accessor :refs_dir
 
     InfoFileName = 'info.json'
 
@@ -27,9 +26,8 @@ module Simple
       id
     end
 
-    def initialize(root:, refs_dir: nil)
+    def initialize(root:)
       @root = Path.new(root).expand_path
-      @refs_dir = Path.new(refs_dir).expand_path
       @items = {}
       if @root.exist?
         @root.glob("*/#{InfoFileName}").each do |info_file|
@@ -87,8 +85,6 @@ module Simple
         select_method($1)
       when /^%(.*)$/
         select_search($1)
-      when /^@(.*)$/
-        select_ref($1)
       when /^-(.*)$/
         select_remove($1)
       when /^\+?(.*)$/
@@ -127,20 +123,6 @@ module Simple
           end
         end
       end.flatten.compact.map(&:id)
-    end
-
-    def select_ref(ref)
-      unless @refs_dir
-        raise Error, "Reference specified but refs_dir is not defined"
-      end
-      path = @refs_dir / ref
-      unless path.exist?
-        raise Error, "Reference #{ref.inspect} does not exist in #{@refs_dir}"
-      end
-      path.readlines.map do |line|
-        selector = line.sub(/#.*/, '').strip.split(/\s+/, 2).first
-        select(selector)
-      end
     end
 
     def json_file_for_id(id)
